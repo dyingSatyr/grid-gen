@@ -3,17 +3,6 @@
     <div class="modal">
       <img src="../assets/logo.png" alt="grid gen" class="logo" />
       <progress v-if="showProgressBar" progress max="100" :value="progress"></progress>
-      <!-- <p class="question">{{getCurrentQuestion.text}}</p>
-      
-      <input
-        v-if="getCurrentQuestion.requiresInput"
-        v-model="userInput"
-        class="answer-box"
-        type="text"
-        :placeholder="getCurrentQuestion.placeholder"
-      />
-      <button @click="answer(currentQuestion)">{{getCurrentQuestion.button}}</button>
-      <button v-if="currentQuestion > 2" @click="back" class="back-btn">Back</button>-->
       <div v-if="currentQuestion === 1" class="question-container">
         <p class="question">Welcome, let me help you create a grid!</p>
         <button @click="startQuiz">Let's start!</button>
@@ -60,9 +49,6 @@
 <script>
 export default {
   name: "Questions",
-  props: {
-    msg: String,
-  },
   data: function () {
     return {
       currentQuestion: 1,
@@ -120,7 +106,7 @@ export default {
       this.currentQuestion++;
     },
     finishQuiz: function () {
-      this.$emit("quiz-finished", this.answers);
+      this.$emit("quizFinished", this.answers);
     },
     back: function () {
       this.errorMessage = "";
@@ -132,7 +118,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .outer {
   font-family: "Montserrat", sans-serif;
