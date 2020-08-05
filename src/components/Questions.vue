@@ -3,8 +3,8 @@
     <div class="modal">
       <img src="../assets/logo.png" alt="grid gen" class="logo" />
       <progress v-if="showProgressBar" progress max="100" :value="progress"></progress>
-      <p class="question">{{getCurrentQuestion.text}}</p>
-      <p v-if="errorMessage" class="error">{{errorMessage}}</p>
+      <!-- <p class="question">{{getCurrentQuestion.text}}</p>
+      
       <input
         v-if="getCurrentQuestion.requiresInput"
         v-model="userInput"
@@ -13,7 +13,46 @@
         :placeholder="getCurrentQuestion.placeholder"
       />
       <button @click="answer(currentQuestion)">{{getCurrentQuestion.button}}</button>
-      <button v-if="currentQuestion > 2" @click="back" class="back-btn">Back</button>
+      <button v-if="currentQuestion > 2" @click="back" class="back-btn">Back</button>-->
+      <div v-if="currentQuestion === 1" class="question-container">
+        <p class="question">Welcome, let me help you create a grid!</p>
+        <button @click="startQuiz">Let's start!</button>
+      </div>
+      <div v-else-if="currentQuestion === 2" class="question-container">
+        <p class="question">How many rows would you like to have?</p>
+        <p v-if="errorMessage" class="error">{{errorMessage}}</p>
+        <input v-model="userInput" class="answer-box" type="text" placeholder="Number of rows..." />
+        <button @click="setRows">OK</button>
+      </div>
+      <div v-else-if="currentQuestion === 3" class="question-container">
+        <p class="question">And you guessed it, how many columns?</p>
+        <p v-if="errorMessage" class="error">{{errorMessage}}</p>
+        <input
+          v-model="userInput"
+          class="answer-box"
+          type="text"
+          placeholder="Number of columns..."
+        />
+        <button @click="setColumns">OK</button>
+        <button @click="back" class="back-btn">Back</button>
+      </div>
+      <div v-else-if="currentQuestion === 4" class="question-container">
+        <p class="question">All right. How many sections does your design have?</p>
+        <p v-if="errorMessage" class="error">{{errorMessage}}</p>
+        <input
+          v-model="userInput"
+          class="answer-box"
+          type="text"
+          placeholder="Number of sections..."
+        />
+        <button @click="setSections">OK</button>
+        <button @click="back" class="back-btn">Back</button>
+      </div>
+      <div v-else-if="currentQuestion === 5" class="question-container">
+        <p class="question">I think we have everything we need for now.</p>
+        <button @click="finishQuiz">Finish</button>
+        <button @click="back" class="back-btn">Back</button>
+      </div>
     </div>
   </div>
 </template>
@@ -32,105 +71,62 @@ export default {
       errorMessage: "",
       userInput: "",
       answers: {
-        rows: Number,
-        columns: Number,
-        areas: Number,
-        areaNames: Array,
+        rows: null,
+        columns: null,
+        areas: null,
       },
-      questions: [
-        {
-          id: 1,
-          text: "Welcome, let me help you create a grid!",
-          button: "Let's start!",
-          requiresInput: false,
-          placeholder: "",
-        },
-        {
-          id: 2,
-          text: "How many rows would you like to have?",
-          button: "OK",
-          requiresInput: true,
-          placeholder: "Number of rows...",
-        },
-        {
-          id: 3,
-          text: "And you guessed it, how many columns?",
-          button: "OK",
-          requiresInput: true,
-          placeholder: "Number of columns...",
-        },
-        {
-          id: 4,
-          text: "All right. How many sections does your design have?",
-          button: "OK",
-          requiresInput: true,
-          placeholder: "Number of sections...",
-        },
-        {
-          id: 5,
-          text: `I think we have everything we need for now.`,
-          requiresInput: false,
-          button: "Finish",
-          placeholder: "",
-        },
-      ],
     };
   },
   methods: {
-    answer: function (qnr) {
-      //Validate input
-      if (
-        (qnr >= 2 && !this.userInput) ||
-        (qnr >= 2 && !Number.isInteger(parseInt(this.userInput, 10)))
-      ) {
-        console.log(this.userInput);
+    startQuiz: function () {
+      this.showProgressBar = true;
+      this.currentQuestion++;
+    },
+    setRows: function () {
+      if (!this.userInput || !Number.isInteger(parseInt(this.userInput, 10))) {
         this.errorMessage = "Woah, woah, woah. Only numbers are allowed.";
         return;
       }
-      //Clear error if it was there already
       this.errorMessage = "";
-
-      //Show progress bar at 1st question
-      if (qnr >= 1) {
-        this.showProgressBar = true;
-      }
-      //Raise progress at each question after 2nd
-      if (qnr > 1) {
-        this.progress += 25;
-      }
-      //store the value user input to data
-      this.storeInput(qnr, parseInt(this.userInput, 10));
-      console.log(this.answers);
-      //Increment current question
-      this.currentQuestion++;
-      //Empty the input
+      this.answers.rows = this.userInput;
       this.userInput = "";
+      this.progress += 25;
+      this.currentQuestion++;
+    },
+    setColumns: function () {
+      if (!this.userInput || !Number.isInteger(parseInt(this.userInput, 10))) {
+        this.errorMessage = "Woah, woah, woah. Only numbers are allowed.";
+        return;
+      }
+      this.errorMessage = "";
+      this.answers.columns = this.userInput;
+      this.userInput = "";
+      this.progress += 25;
+      this.currentQuestion++;
+    },
+    setSections: function () {
+      if (!this.userInput || !Number.isInteger(parseInt(this.userInput, 10))) {
+        this.errorMessage = "Woah, woah, woah. Only numbers are allowed.";
+        return;
+      }
+      if (this.userInput > this.answers.rows * this.answers.columns) {
+        this.errorMessage = `Get real bro. You can't fit ${this.userInput} sections into ${this.answers.rows} x ${this.answers.columns} grid.`;
+        return;
+      }
+      this.errorMessage = "";
+      this.answers.areas = this.userInput;
+      this.userInput = "";
+      this.progress += 25;
+      this.currentQuestion++;
+    },
+    finishQuiz: function () {
+      this.$emit("quiz-finished", this.answers);
     },
     back: function () {
+      this.errorMessage = "";
+      this.userInput = "";
       this.currentQuestion--;
       this.progress -= 25;
-    },
-
-    storeInput: function (qnr, input) {
-      switch (qnr) {
-        case 2:
-          this.answers.rows = input;
-          break;
-        case 3:
-          this.answers.columns = input;
-          break;
-        case 4:
-          this.answers.areas = input;
-      }
-    },
-  },
-  computed: {
-    getCurrentQuestion: function () {
-      let q = this.questions.find((obj) => {
-        return obj.id === this.currentQuestion;
-      });
-
-      return q;
     },
   },
 };
