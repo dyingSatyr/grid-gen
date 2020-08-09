@@ -88,7 +88,7 @@ export default {
     },
     //Finish step 2 and move on to showing code
     generateCode: function () {
-      console.log("generate");
+      this.$emit("gridSetterFinished", this.gridGenerated);
     },
     setArea: function (area, row) {
       //Do nothing if no section is already selected
