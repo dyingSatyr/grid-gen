@@ -88,7 +88,10 @@ export default {
     },
     //Finish step 2 and move on to showing code
     generateCode: function () {
-      this.$emit("gridSetterFinished", this.gridGenerated);
+      this.$emit("gridSetterFinished", {
+        gridGenerated: this.gridGenerated,
+        sections: this.gridSections,
+      });
     },
     setArea: function (area, row) {
       //Do nothing if no section is already selected
