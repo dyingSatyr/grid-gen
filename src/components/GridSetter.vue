@@ -36,7 +36,7 @@
 export default {
   name: "GridSetter",
   props: {
-    gridConfig: Array,
+    gridConfig: Object,
   },
   data: function () {
     return {
